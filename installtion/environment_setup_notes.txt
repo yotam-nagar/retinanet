@@ -1,0 +1,313 @@
+# Keras-RetinaNet Environment Setup Notes
+
+## Initial Setup Problems and Solutions
+
+### 1. Virtual Environment Name Issue
+- Problem: Cloned 'ultralytics' environment to 'retinanet', but prompt still showed '(ultralytics)'
+- Solution: Modified the activate script to change VIRTUAL_ENV_PROMPT from '(ultralytics)' to '(retinanet)'
+- Location: /home/yotam/My_Projects/venv/retinanet/bin/activate
+
+### 2. Package Installation Issues
+
+#### A. COCO API Installation
+- Problem: cocoapi installation failed due to missing numpy during build
+- Solution: Replaced cocoapi with pycocotools from PyPI (pre-built version)
+- Command: pip install pycocotools
+
+#### B. Major Dependency Conflicts
+The following package versions had conflicting requirements:
+- keras-resnet 0.2.0 required keras>=2.2.4
+- tensorflow 2.12.0 required keras>=2.12.0,<2.13
+- Original requirements.txt specified keras<=2.3.1,>=2.0.9
+
+Solution Strategy:
+1. Modified requirements.txt to comment out conflicting packages:
+   ```
+   # git+https://github.com/cocodataset/cocoapi.git#subdirectory=PythonAPI
+   # keras-resnet==0.2.0
+   # keras<=2.3.1,>=2.0.9
+   # tensorflow>=2.3.0
+   ```
+
+2. Installed packages in specific order:
+   a. First installed compatible keras and tensorflow:
+      - keras 2.12.0
+      - tensorflow 2.12.0
+   b. Then installed keras-resnet 0.2.0
+   c. Finally installed remaining packages
+
+## Final Environment State
+
+Successfully installed packages with compatible versions:
+- keras 2.12.0
+- tensorflow 2.12.0
+- keras-resnet 0.2.0
+- opencv-python 4.11.0.86
+- progressbar2 4.5.0
+- numpy 1.23.5
+- matplotlib 3.10.3
+- pillow 11.2.1
+- h5py 3.13.0
+- cython 3.1.1
+
+## Key Lessons Learned
+
+1. Package Dependencies:
+   - Understanding dependency relationships is crucial
+   - Some packages require specific versions of other packages
+   - Installing in the correct order can prevent conflicts
+
+2. Build vs Pre-built Packages:
+   - Pre-built packages (like pycocotools) are preferred when available
+   - Building from source can fail due to missing dependencies
+   - Always check if a pre-built alternative exists
+
+3. Version Compatibility:
+   - keras and tensorflow versions must be compatible
+   - Some packages may not work with the latest versions
+   - Sometimes older, stable versions are better than the latest
+
+4. Installation Strategy:
+   - Install core dependencies first (keras, tensorflow)
+   - Install dependent packages next
+   - Install utility packages last
+   - When conflicts occur, install packages individually
+
+## Commands Used
+
+1. Environment Setup:
+   ```bash
+   # Clone environment
+   cp -r /home/yotam/My_Projects/venv/ultralytics /home/yotam/My_Projects/venv/retinanet
+   
+   # Activate environment
+   source /home/yotam/My_Projects/venv/retinanet/bin/activate
+   ```
+
+2. Package Installation:
+   ```bash
+   # Install core dependencies
+   pip install keras==2.12.0 tensorflow==2.12.0
+   
+   # Install keras-resnet
+   pip install keras-resnet==0.2.0
+   
+   # Install remaining packages
+   pip install opencv-python>=3.3.0 progressbar2
+   ```
+
+3. Verify Installation:
+   ```bash
+   pip list | grep -E "keras|tensorflow|opencv|progressbar|numpy|matplotlib|pillow|h5py|cython"
+   ```
+
+## Next Steps
+
+The environment is now properly configured for:
+1. Training models with keras-retinanet
+2. Processing image data
+3. Running object detection tasks
+
+To proceed with training:
+1. Prepare your training data
+2. Configure the model parameters
+3. Start the training process
+
+# ========================================================================
+# PROTOCOL: REBUILDING VIRTUAL ENVIRONMENT ON A DIFFERENT LINUX COMPUTER
+# ========================================================================
+
+## Prerequisites
+- Linux system with Python 3.8+ installed
+- pip package manager
+- git (for cloning repositories)
+- Basic development tools (gcc, make, etc.) - usually available via build-essential package
+
+## Step-by-Step Protocol
+
+### 1. System Preparation
+```bash
+# Update system packages (Ubuntu/Debian)
+sudo apt update && sudo apt upgrade -y
+
+# Install essential development tools
+sudo apt install -y build-essential python3-dev python3-pip python3-venv git
+
+# For CentOS/RHEL/Fedora, use:
+# sudo dnf install -y gcc gcc-c++ python3-devel python3-pip git
+```
+
+### 2. Create Project Directory Structure
+```bash
+# Create main project directory
+mkdir -p ~/My_Projects/test_cursor
+cd ~/My_Projects/test_cursor
+
+# Clone the keras-retinanet repository
+git clone https://github.com/fizyr/keras-retinanet.git retinanet
+cd retinanet
+```
+
+### 3. Create Virtual Environment
+```bash
+# Create virtual environment directory
+mkdir -p ~/My_Projects/venv
+
+# Create new virtual environment
+python3 -m venv ~/My_Projects/venv/retinanet
+
+# Activate the virtual environment
+source ~/My_Projects/venv/retinanet/bin/activate
+
+# Verify activation (should show (retinanet) in prompt)
+echo $VIRTUAL_ENV
+```
+
+### 4. Upgrade pip and Install Core Dependencies
+```bash
+# Upgrade pip to latest version
+pip install --upgrade pip
+
+# Install numpy first (required for many other packages)
+pip install numpy==1.23.5
+
+# Install core ML framework dependencies in specific order
+pip install keras==2.12.0
+pip install tensorflow==2.12.0
+```
+
+### 5. Install keras-retinanet Dependencies
+```bash
+# Install keras-resnet (depends on keras being installed first)
+pip install keras-resnet==0.2.0
+
+# Install computer vision and utility packages
+pip install opencv-python==4.11.0.86
+pip install progressbar2==4.5.0
+
+# Install additional required packages
+pip install matplotlib==3.10.3
+pip install pillow==11.2.1
+pip install h5py==3.13.0
+pip install cython==3.1.1
+
+# Install COCO API (use pre-built version to avoid compilation issues)
+pip install pycocotools
+```
+
+### 6. Install keras-retinanet Package
+```bash
+# Make sure you're in the retinanet directory
+cd ~/My_Projects/test_cursor/retinanet
+
+# Install keras-retinanet in development mode
+pip install -e .
+```
+
+### 7. Verify Installation
+```bash
+# Check all installed packages
+pip list
+
+# Verify specific packages are correctly installed
+pip list | grep -E "keras|tensorflow|opencv|progressbar|numpy|matplotlib|pillow|h5py|cython|pycocotools"
+
+# Test import of key modules
+python -c "import keras; import tensorflow; import cv2; import numpy; print('All imports successful!')"
+```
+
+### 8. Create Data Tools Directory (if needed)
+```bash
+# Create directory for data preparation scripts
+mkdir -p data_tools
+```
+
+### 9. Environment Activation Script (Optional)
+```bash
+# Create a convenient activation script
+cat > activate_retinanet.sh << 'EOF'
+#!/bin/bash
+echo "Activating RetinaNet environment..."
+source ~/My_Projects/venv/retinanet/bin/activate
+cd ~/My_Projects/test_cursor/retinanet
+echo "Environment activated. Current directory: $(pwd)"
+echo "Python version: $(python --version)"
+echo "Virtual environment: $VIRTUAL_ENV"
+EOF
+
+# Make it executable
+chmod +x activate_retinanet.sh
+```
+
+## Troubleshooting Common Issues
+
+### Issue 1: Package Conflicts
+**Problem**: Conflicting package versions during installation
+**Solution**: 
+- Install packages in the specified order above
+- Use exact version numbers provided
+- If conflicts persist, create a fresh virtual environment
+
+### Issue 2: Compilation Errors
+**Problem**: Packages failing to compile from source
+**Solution**:
+- Ensure build-essential tools are installed
+- Use pre-built packages when available (e.g., pycocotools instead of cocoapi)
+- Check if system has required development headers
+
+### Issue 3: Import Errors
+**Problem**: Modules not found after installation
+**Solution**:
+- Verify virtual environment is activated
+- Check if packages were installed in correct environment
+- Reinstall problematic packages
+
+### Issue 4: CUDA/GPU Issues (if applicable)
+**Problem**: TensorFlow not detecting GPU
+**Solution**:
+- Install appropriate CUDA drivers
+- Use tensorflow-gpu if needed (though tensorflow 2.12+ includes GPU support)
+- Verify GPU compatibility with TensorFlow version
+
+## Final Verification Commands
+```bash
+# Test the complete setup
+python -c "
+import keras
+import tensorflow as tf
+import cv2
+import numpy as np
+from keras_retinanet import models
+print('✓ All core packages imported successfully')
+print(f'✓ TensorFlow version: {tf.__version__}')
+print(f'✓ Keras version: {keras.__version__}')
+print(f'✓ OpenCV version: {cv2.__version__}')
+print(f'✓ NumPy version: {np.__version__}')
+print('✓ Environment setup complete!')
+"
+```
+
+## Notes for Different Linux Distributions
+
+### Ubuntu/Debian:
+- Use `apt` package manager
+- Package names: `python3-dev`, `build-essential`
+
+### CentOS/RHEL/Fedora:
+- Use `dnf` or `yum` package manager  
+- Package names: `python3-devel`, `gcc`, `gcc-c++`
+
+### Arch Linux:
+- Use `pacman` package manager
+- Package names: `python`, `base-devel`
+
+## Environment Export/Import (Alternative Method)
+```bash
+# Export current environment (run this on original machine)
+pip freeze > requirements_exact.txt
+
+# Import on new machine (after creating virtual environment)
+pip install -r requirements_exact.txt
+```
+
+This protocol ensures a reproducible setup across different Linux systems while avoiding the common pitfalls encountered during the original installation. 

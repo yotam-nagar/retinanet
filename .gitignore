@@ -77,12 +77,6 @@ Thumbs.db
 *.temp
 *.log
 
-# Installation directory
-installtion/
-
-# Cloned repositories
-keras-retinanet/
-
 # Compiled extensions
 *.so
 
